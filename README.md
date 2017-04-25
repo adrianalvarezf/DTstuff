@@ -1,5 +1,3 @@
-# DTstuff
-
 How to use
 ==============
 STEP 1: Histograms
