@@ -22,4 +22,4 @@ COMPARE
 Compile diff.C , then:
 
       ./diff.exe fitvalues1.txt fitvalues2,txt
-   
+Make sure to cut out the first two lines of text in the txt before!
