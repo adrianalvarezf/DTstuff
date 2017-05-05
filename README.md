@@ -16,3 +16,10 @@ Compile histodiv.C , then:
 In the first argument 1 means 1 input file, for the second argument 1 means printgifs=true.
 
 This creates hist_div_run291222_3600V.root , a txt file with the fit values and the gifs (optional).
+
+COMPARE
+
+Compile diff.C , then:
+
+      ./diff.exe fitvalues1.txt fitvalues2,txt
+   
