@@ -29,7 +29,7 @@
 
 int main(int argc, const char* argv[]){
 
-  if(argc<3){printf("Not enough arguments provided. Use: ./histodiv.exe [numberoffiles N] [print gifs 1=y/0=n] file1.root ...  fileN.root\n"); return 0;}
+  if(argc=!4){printf("Not enough arguments provided. Use: ./histodiv.exe [numberoffiles N] [print gifs 1=y/0=n] file1.root ...  fileN.root\n"); return 0;}
 
   TH1F *HH[5][4][14];  
   TH1F *HL[5][4][14]; 
