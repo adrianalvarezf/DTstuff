@@ -17,7 +17,7 @@ In the first argument 1 means 1 input file, for the second argument 1 means prin
 
 This creates hist_div_run291222_3600V.root , a txt file with the fit values and the gifs (optional).
 
-COMPARE
+STEP 3: Compare peak values
 
 Compile diff.C , then:
 
