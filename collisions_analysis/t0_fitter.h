@@ -54,23 +54,14 @@ public :
    Float_t         beam1Intensity;
    Float_t         beam2Intensity;
 
-   int highhigh=0;
-   int highlow=0;
-   int both=0;
+   
    int segmentsfortwo=0;
    int segmentstotal=0;
    int mtight=0;
-   int totalbx=0;
-   int wrongbx=0;
+  
 
-   /* TH1F *HH[5][4][12];  
-   TH1F *HL[5][4][12]; 
-   TH1F *div[5][4][12];
-   TH1F *HH_fold[5][4][12];  
-   TH1F *HL_fold[5][4][12];
-   TH1F *div_fold[5][4][12]; */
+   
    TH1F *T0[5][4][14];
-   // TH1F *T0_notriggerinfo[5][4][12];
    TH1F *BX[5][4][14];
    TH1F *mu_tight = new TH1F("number_of_tight_muons","number_of_tight_muons",4,0,4);
    TH1F *ang_hist = new TH1F("ang_hist","segment_angle_hist",200,-80,80);
@@ -710,16 +701,8 @@ void t0_fitter::Init(TTree *tree)
        for(int sector=0;sector<14;sector++){
 	 TString hName = Form("Wh%d_St%d_Sec%d",wheel-2,station+1,sector+1);
 	 TString hNamef = Form("Wh%d_St%d_Sec%d",wheel-2,station+1,sector+1);
-	 //cout << hName << endl;
-	 // HL[wheel][station][sector] = new TH1F(Form("%s_HL",hName.Data()),hName,120,-80,40); 
-	 //HH[wheel][station][sector] = new TH1F(Form("%s_HH",hName.Data()),hName,120,-80,40); 
-	 // div[wheel][station][sector]= new TH1F(Form("%s_div",hName.Data()),hName,120,-80,40);   
-	 // HL_fold[wheel][station][sector] = new TH1F(Form("%s_HL_fold",hNamef.Data()),hName,50,0,25); 
-	 //HH_fold[wheel][station][sector] = new TH1F(Form("%s_HH_fold",hNamef.Data()),hName,50,0,25); 
-	 // div_fold[wheel][station][sector]= new TH1F(Form("%s_div_fold",hNamef.Data()),hName,50,0,25); 
 	 T0[wheel][station][sector]= new TH1F(Form("%s_t0",hName.Data()),hName,40,-20,20);
-	 // T0_notriggerinfo[wheel][station][sector]= new TH1F(Form("%s_t0_notriginfo",hName.Data()),hName,40,-20,20);
- 	 BX[wheel][station][sector]= new TH1F(Form("%s_bx",hName.Data()),hName,12,-6,6); 
+	 BX[wheel][station][sector]= new TH1F(Form("%s_bx",hName.Data()),hName,12,-6,6); 
        }
      }
    }

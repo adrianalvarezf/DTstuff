@@ -113,11 +113,7 @@ Bool_t t0_fitter::Process(Long64_t entry)
 	 }
        }
        if(used>0)continue;
-       /*  if(my_dtsegm4D_sector[idtsegm]==13)T0_notriggerinfo[my_dtsegm4D_wheel[idtsegm]+2][my_dtsegm4D_station[idtsegm]-1][3]->Fill(my_dtsegm4D_t0[idtsegm]);
-       else{
-	 if(my_dtsegm4D_sector[idtsegm]==14)T0_notriggerinfo[my_dtsegm4D_wheel[idtsegm]+2][my_dtsegm4D_station[idtsegm]-1][9]->Fill(my_dtsegm4D_t0[idtsegm]);
-	 else T0_notriggerinfo[my_dtsegm4D_wheel[idtsegm]+2][my_dtsegm4D_station[idtsegm]-1][my_dtsegm4D_sector[idtsegm]-1]->Fill(my_dtsegm4D_t0[idtsegm]);
-	 }*/
+     
        for (int q = 0; q <(int)my_ltTwinMuxIn_quality.size(); ++q) {
 	if(my_ltTwinMuxIn_station[q]!= my_dtsegm4D_station[idtsegm] || my_ltTwinMuxIn_wheel[q]!= my_dtsegm4D_wheel[idtsegm] ){continue;}
 	if(my_ltTwinMuxIn_sector[q]!= my_dtsegm4D_sector[idtsegm] &&  my_dtsegm4D_sector[idtsegm]<13 ){continue;}
@@ -230,7 +226,6 @@ void t0_fitter::Terminate()
   for(int w=0;w<5;w++){
     for(int st=0;st<4;st++){
       for(int sec=0;sec<14;sec++){
-	//if(w==0&&st==0&&sec==11)continue;
 	if(sec>11 && st!=3)continue;
 	if(T0[w][st][sec]->GetEntries()==0)continue;
 	TString namet0s = Form("t0_Wh%d_MB%d_Sec%d.gif",w-2,st+1,sec+1); 
@@ -254,9 +249,7 @@ void t0_fitter::Terminate()
 	double bxmean= BX[w][st][sec]->GetMean();
 	h_fits[st]->Fill(mean);
 	
-	fitdata<<"      "<<showpos<<w-2<<noshowpos<<"      "<<st+1<<"      "<<setfill('0') << setw(2)<< sec+1<<"      "<< fixed << setprecision(4)<<showpos<<mean<<"   "<<noshowpos<<meanerr<<"     "<<fabs(sigma)<<"   "<<sigmaerr<<"     "<<showpos<<bxmean<<"     "
-	  //<<triggereff[w][st][sec]
-	       <<endl;
+	fitdata<<"      "<<showpos<<w-2<<noshowpos<<"      "<<st+1<<"      "<<setfill('0') << setw(2)<< sec+1<<"      "<< fixed << setprecision(4)<<showpos<<mean<<"   "<<noshowpos<<meanerr<<"     "<<fabs(sigma)<<"   "<<sigmaerr<<"     "<<showpos<<bxmean<<endl;
 	//printf("wheel %3d station %2d sector %3d <t0>= %7.4f +/- %7.4f sigma= %7.4f +/- %7.4f\n",w-2,st+1,sec+1,mean,meanerr,sigma,sigmaerr);
 	//can4[w][st][sec]->Print(namet0s); 
 	T0[w][st][sec]->Write();
@@ -324,6 +317,6 @@ void t0_fitter::Terminate()
   */
 
   //cout<<" segments for two muons = "<<segmentsfortwo<<" segments total = "<<segmentstotal<<" fraction "<<(double)segmentsfortwo/segmentstotal<<endl;
-  // cout<<" BX points = "<<totalbx<<" |BX|>1 points = "<<wrongbx<<" fraction "<<(double)wrongbx/totalbx<<endl;
+
   
 }
