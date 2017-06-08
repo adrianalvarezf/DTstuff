@@ -1,4 +1,4 @@
-How to use
+How to use the cosmic analysis programs
 ==============
 STEP 1: Histograms
 
@@ -23,3 +23,10 @@ Compile diff.C , then:
 
       ./diff.exe fitvalues1.txt fitvalues2,txt
 Make sure to cut out the first two lines of text in the txt before!
+
+How to use the collision analysis programs
+==============
+STEP 1: Obtain t0s
+
+     root DTNTuple_runXXXX.root
+     root [0]DTTree->Process("t0_fitter.C") 
