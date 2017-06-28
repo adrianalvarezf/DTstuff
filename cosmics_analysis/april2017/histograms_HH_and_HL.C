@@ -125,8 +125,9 @@ void histograms_HH_and_HL::Terminate()
   if(runnumber==291316)voltage=3700;
   if(runnumber==291222)voltage=3600;
   if(runnumber==291860)voltage=3550;
-  if(runnumber==290966)voltage=3500;
-  if(runnumber==290910)voltage=3400;
+  if(runnumber==290966||runnumber==291836)voltage=3500;
+  if(runnumber==291778)voltage=3450;
+  if(runnumber==290910||runnumber==291683)voltage=3400;
   if(runnumber==291340)voltage=3250;
   if(runnumber==291385)voltage=3350;
 
