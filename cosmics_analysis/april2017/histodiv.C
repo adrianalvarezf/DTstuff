@@ -77,8 +77,9 @@ int main(int argc, const char* argv[]){
     for(int wheel=0;wheel<5;wheel++){
       for(int station=0;station<4;station++){
 	for(int sec=0;sec<14;sec++){
-	  if(station==2||station==1||wheel==1||wheel==3)continue;                  ///Check just the changed chambers
-	  if(sec<2||sec>4)continue;                                                ///Check just the changed chambers
+	  //	  if(station==2||station==1||wheel==1||wheel==3)continue;                  ///Check just the changed chambers
+	  //      if(sec<2||sec>4)continue;                                                ///Check just the changed chambers
+	  if(sec>11&&station!=3)continue;
 	  HH[wheel][station][sec] = (TH1F*)f[nfile]->Get(Form("Wh%d_St%d_Sec%d_HH",wheel-2,station+1,sec+1));
 	  HL[wheel][station][sec] = (TH1F*)f[nfile]->Get(Form("Wh%d_St%d_Sec%d_HL",wheel-2,station+1,sec+1));
 	  HH_fold[wheel][station][sec] = (TH1F*)f[nfile]->Get(Form("Wh%d_St%d_Sec%d_HH_fold",wheel-2,station+1,sec+1));
