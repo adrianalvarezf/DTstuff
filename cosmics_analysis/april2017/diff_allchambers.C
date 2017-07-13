@@ -35,15 +35,15 @@ int main(int argc, const char* argv[])
   TString namefile1 =argv[1];
   TString namefile2 =argv[2];
 
-  int wheel[18],station[18],sector[18];
-  float mean[18],meanerr[18], sigma[18],sigmaerr[18];
-  float mean2[18],meanerr2[18], sigma2[18],sigmaerr2[18];
-  double difference[18],differenceerr[18];
+  int wheel[250],station[250],sector[250];
+  float mean[250],meanerr[250], sigma[250],sigmaerr[250];
+  float mean2[250],meanerr2[250], sigma2[250],sigmaerr2[250];
+  double difference[250],differenceerr[250];
   TH1F *difference_hist = new TH1F("difference","phase min",50,-1.5,1.5);
 
   std::ifstream in;
   in.open(namefile1);
-  for(int row=0;row<18;row++ ){
+  for(int row=0;row<250;row++ ){
     in>>wheel[row]>>station[row]>>sector[row]>>mean[row]>>meanerr[row]>>sigma[row]>>sigmaerr[row];
        std::cout<<wheel[row]<<"  "<<station[row]<<"  "<<sector[row]<<"  "<<mean[row]<<"  "<<meanerr[row]<<"  "<<sigma[row]<<"  "<<sigmaerr[row]<<std::endl;
   }
@@ -51,7 +51,7 @@ int main(int argc, const char* argv[])
 
   std::ifstream in2;
   in2.open(namefile2);
-  for(int row=0;row<18;row++ ){
+  for(int row=0;row<250;row++ ){
     in2>>wheel[row]>>station[row]>>sector[row]>>mean2[row]>>meanerr2[row]>>sigma2[row]>>sigmaerr2[row];
     std::cout<<wheel[row]<<"  "<<station[row]<<"  "<<sector[row]<<"  "<<mean2[row]<<"  "<<meanerr2[row]<<"  "<<sigma2[row]<<"  "<<sigmaerr2[row]<<std::endl;
   }
@@ -70,9 +70,10 @@ int main(int argc, const char* argv[])
 
   for(int w=0;w<5;w++ ){
     for(int st=0;st<4;st++ ){
-      for(int sec=3;sec<6;sec++ ){
-	if(st==1||st==2)continue;       //changed
-	if(w==1||w==3)continue;         //chambers
+      for(int sec=0;sec<14;sec++ ){
+	//if(st==1||st==2)continue;       //changed
+	//if(w==1||w==3)continue;         //chambers
+	if(sec>11&st!=3)continue;
 	difference[row]=mean[row]-mean2[row];
 	differenceerr[row]=std::sqrt(meanerr[row]*meanerr[row]+meanerr2[row]*meanerr2[row]);
 	std::cout<<mean[row]<<"  "<<mean2[row]<<"  "<<" difference "<<difference[row]<<" difference error "<<differenceerr[row]<<std::endl;
