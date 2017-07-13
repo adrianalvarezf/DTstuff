@@ -222,6 +222,10 @@ void t0_fitter::Terminate()
  
   fitdata<<"    Wheel "<<"  "<<" MB "<<" "<<" Sector "<<"    "<< " mean "<<" "<<" mean error "<<" "<<" sigma "<<" sigma error "<<"   "<<" BX "<<endl;
   fitdata<< " ................................................................................. " <<endl;
+
+  float mainpeak=0;
+  float secondpeak=0;
+  float thirdpeak=0;
   
   for(int w=0;w<5;w++){
     for(int st=0;st<4;st++){
@@ -248,7 +252,9 @@ void t0_fitter::Terminate()
 	//gStyle->SetOptStat(0);
 	double bxmean= BX[w][st][sec]->GetMean();
 	h_fits[st]->Fill(mean);
-	
+	if(st==3 && (sec==2||sec==3||sec==4||sec==12))thirdpeak+=mean;
+	else if (st==0 && (w==0 ||w==4))secondpeak+=mean;
+	else mainpeak+=mean;
 	fitdata<<"      "<<showpos<<w-2<<noshowpos<<"      "<<st+1<<"      "<<setfill('0') << setw(2)<< sec+1<<"      "<< fixed << setprecision(4)<<showpos<<mean<<"   "<<noshowpos<<meanerr<<"     "<<fabs(sigma)<<"   "<<sigmaerr<<"     "<<showpos<<bxmean<<endl;
 	//printf("wheel %3d station %2d sector %3d <t0>= %7.4f +/- %7.4f sigma= %7.4f +/- %7.4f\n",w-2,st+1,sec+1,mean,meanerr,sigma,sigmaerr);
 	//can4[w][st][sec]->Print(namet0s); 
@@ -257,7 +263,10 @@ void t0_fitter::Terminate()
       }
     }
   }
-
+  secondpeak=secondpeak/28;
+  thirdpeak=thirdpeak/20;
+  mainpeak=mainpeak/202;
+  cout<<"main peak=   "<<mainpeak<<"   second peak=   "<<secondpeak<<"    third peak=   "<<thirdpeak<<endl;
   TCanvas *histomean= new TCanvas();
   for(int a=0;a<4;a++){
     h_fits[a]->SetFillColor(a+1);
