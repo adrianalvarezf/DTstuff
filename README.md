@@ -24,9 +24,17 @@ Compile diff.C , then:
       ./diff.exe fitvalues1.txt fitvalues2,txt
 Make sure to cut out the first two lines of text in the txt before!
 
-How to use the collision analysis programs
+How to use the collision analysis program
 ==============
 STEP 1: Obtain t0s
 
      root DTNTuple_runXXXX.root
      root [0]DTTree->Process("t0_fitter.C") 
+Make sure to cut out the first two lines of this txt before you use it for the corrections!
+
+How to use the corrections program
+==============
+STEP 1: Calculate the corrections
+Compile corrections_calcultar.C , then:
+
+      ./corrections_calculator.exe hist_div_runXXXX_Voltage.txt t0sfile.txt
