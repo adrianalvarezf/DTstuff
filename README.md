@@ -35,6 +35,7 @@ Make sure to cut out the first two lines of this txt before you use it for the c
 How to use the corrections program
 ==============
 STEP 1: Calculate the corrections
-Compile corrections_calcultar.C , then:
+
+Compile corrections_calculator.C , then:
 
       ./corrections_calculator.exe hist_div_runXXXX_Voltage.txt t0sfile.txt
