@@ -38,4 +38,4 @@ STEP 1: Calculate the corrections
 
 Compile corrections_calculator.C , then:
 
-      ./corrections_calculator.exe hist_div_runXXXX_Voltage.txt t0sfile.txt
+      ./corrections_calculator.exe worstphasepeaks.txt t0sfile.txt
