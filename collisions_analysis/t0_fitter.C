@@ -132,35 +132,36 @@ Bool_t t0_fitter::Process(Long64_t entry)
     }
   }
   mu_tight->Fill(mtight);
-    
-    return kTRUE;
+  
+  my_dtsegm4D_wheel.clear();
+  my_dtsegm4D_station.clear(); 
+  my_dtsegm4D_sector.clear();
+  my_dtsegm4D_phinhits.clear();
+  my_dtsegm4D_t0.clear();
+  my_ltTwinMuxIn_quality.clear();
+  my_ltTwinMuxIn_sector.clear();
+  my_ltTwinMuxIn_station.clear();
+  my_ltTwinMuxIn_wheel.clear();
+  my_dtsegm4D_x_dir_loc.clear();
+  my_dtsegm4D_z_dir_loc.clear();
 
-    my_dtsegm4D_wheel.clear();
-    my_dtsegm4D_station.clear(); 
-    my_dtsegm4D_sector.clear();
-    my_dtsegm4D_phinhits.clear();
-    my_dtsegm4D_t0.clear();
-    my_ltTwinMuxIn_quality.clear();
-    my_ltTwinMuxIn_sector.clear();
-    my_ltTwinMuxIn_station.clear();
-    my_ltTwinMuxIn_wheel.clear();
-    my_dtsegm4D_x_dir_loc.clear();
-    my_dtsegm4D_z_dir_loc.clear();
+  my_Mu_isMuGlobal.clear();
+  my_Mu_isMuTracker.clear();
+  my_Mu_normchi2_glb.clear();
+  my_Mu_numberOfMatches_sta.clear();
+  my_Mu_dxy_glb.clear();
+  my_Mu_dz_glb.clear();
+  my_Mu_numberOfHits_sta.clear();
+  my_Mu_numberOfPixelHits_glb.clear();
+  my_Mu_numberOfTrackerHits_glb.clear();
+  my_Mu_px.clear();
+  my_Mu_py.clear();
+  my_Mu_pz.clear(); 
+  my_Mu_phi.clear();
+  my_Mu_eta.clear(); 
 
-    my_Mu_isMuGlobal.clear();
-    my_Mu_isMuTracker.clear();
-    my_Mu_normchi2_glb.clear();
-    my_Mu_numberOfMatches_sta.clear();
-    my_Mu_dxy_glb.clear();
-    my_Mu_dz_glb.clear();
-    my_Mu_numberOfHits_sta.clear();
-    my_Mu_numberOfPixelHits_glb.clear();
-    my_Mu_numberOfTrackerHits_glb.clear();
-    my_Mu_px.clear();
-    my_Mu_py.clear();
-    my_Mu_pz.clear(); 
-    my_Mu_phi.clear();
-    my_Mu_eta.clear(); 
+  return kTRUE;
+
 
   }
  
@@ -173,8 +174,8 @@ void t0_fitter::Terminate()
 {
 
  
-  //TFile *my_new_file = new TFile(Form("t0_histograms_run%d.root",runnumber),"RECREATE"); 
-  TFile *my_new_file = new TFile("t0_histograms_Run295463_and_296173.root","RECREATE"); 
+  TFile *my_new_file = new TFile(Form("t0_histograms_run%d.root",runnumber),"RECREATE"); 
+  //TFile *my_new_file = new TFile("t0_histograms_Run295463_and_296173.root","RECREATE"); 
   TCanvas *can3[5];
   TGraphErrors *gr[5][4];
   int sec[14]={1,2,3,4,5,6,7,8,9,10,11,12,13,14};
@@ -217,8 +218,8 @@ void t0_fitter::Terminate()
   
 
   TCanvas *can4[5][4][14];
-  ofstream fitdata ("fit_t0_Run295463_and_296173.txt");
-  //ofstream fitdata (Form("fit_t0_run%d.txt",runnumber));
+  //ofstream fitdata ("fit_t0_Run295463_and_296173.txt");
+  ofstream fitdata (Form("fit_t0_run%d.txt",runnumber));
  
   fitdata<<"    Wheel "<<"  "<<" MB "<<" "<<" Sector "<<"    "<< " mean "<<" "<<" mean error "<<" "<<" sigma "<<" sigma error "<<"   "<<" BX "<<endl;
   fitdata<< " ................................................................................. " <<endl;
