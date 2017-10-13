@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <stdlib.h>
@@ -33,7 +33,7 @@ using namespace std;
 
 int main(int argc, const char* argv[]){
   
-if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX_Voltage.txt t0sfile.txt \n"); return 0;}
+if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX.txt fit_t0_runXXXX.txt \n"); return 0;}
 
  TString namefile1= argv[1];
  TString namefile2= argv[2];
@@ -95,8 +95,8 @@ if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX_Voltage.
 	}
 	*/
 	correctionerr[row]=TMath::Sqrt(meanerrt0[row]*meanerrt0[row]+meanerr[row]*meanerr[row]);
-	cout<<"wheel "<<w-2<<" "<<" station "<<st+1<<" sector "<<sec+1<<endl;
-	cout<<mean[row]<<"  "<<meant0[row]<<"  "<<correction[row]<<endl;
+	//cout<<"wheel "<<w-2<<" "<<" station "<<st+1<<" sector "<<sec+1<<endl;
+	//cout<<mean[row]<<"  "<<meant0[row]<<"  "<<correction[row]<<endl;
 	correction_hist[st]->Fill(correction[row]);
 	correction_all->Fill(correction[row]);
 	if(st==3&&sec<5&&sec>1)h_fits[4]->Fill(correction[row]);

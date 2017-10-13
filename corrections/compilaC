@@ -1,0 +1,10 @@
+#!/bin/sh
+
+ROOTLIBS="`${ROOTSYS}/bin/root-config --glibs` -lMinuit"
+ROOTINCDIR=`${ROOTSYS}/bin/root-config --incdir`
+
+EXTRALIBS="-ldl -lcrypt"
+INCS="-I${ROOTINCDIR}"
+
+g++ -std=c++1y ${INCS} -o $1.exe $1.C  ${ROOTLIBS} ${EXTRALIBS}
+
