@@ -379,7 +379,6 @@ public :
    virtual ~t0_fitter() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
-   virtual void    SlaveBegin(TTree *tree);
    virtual void    Init(TTree *tree);
    virtual Bool_t  Notify();
    virtual Bool_t  Process(Long64_t entry);
@@ -388,7 +387,6 @@ public :
    virtual void    SetObject(TObject *obj) { fObject = obj; }
    virtual void    SetInputList(TList *input) { fInput = input; }
    virtual TList  *GetOutputList() const { return fOutput; }
-   virtual void    SlaveTerminate();
    virtual void    Terminate();
 
    ClassDef(t0_fitter,0);

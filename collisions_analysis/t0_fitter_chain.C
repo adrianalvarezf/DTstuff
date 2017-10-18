@@ -225,7 +225,10 @@ void t0_fitter_chain::Terminate()
     for(int st=0;st<4;st++){
       for(int sec=0;sec<14;sec++){
 	if(sec>11 && st!=3)continue;
-	if(T0[w][st][sec]->GetEntries()==0)continue;
+	if(T0[w][st][sec]->GetEntries()==0){
+	  fitdata<<"missing chamber Wh"<<w-2<<" MB"<<st+1<<" Sec"<<sec+1<<endl; 
+	  continue;
+	}
 	TString namet0s = Form("t0_Wh%d_MB%d_Sec%d.gif",w-2,st+1,sec+1); 
   	can4[w][st][sec]= new TCanvas(); 
 	can4[w][st][sec]->cd(1);
@@ -243,7 +246,7 @@ void t0_fitter_chain::Terminate()
 	myfit->SetParName(1,"mean");
 	myfit->SetParName(2,"sigma");
 	gStyle->SetOptFit(0111);
-	//gStyle->SetOptStat(0);
+	gStyle->SetOptStat(0);
 	double bxmean= BX[w][st][sec]->GetMean();
 	h_fits[st]->Fill(mean);
 	if(st==3 && (sec==2||sec==3||sec==4||sec==12))thirdpeak+=mean;

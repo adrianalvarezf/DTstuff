@@ -9,17 +9,13 @@
 #include "Riostream.h"
 #include "TVectorT.h"
 #include "TString.h"
+#include <iostream>
 
 ///////////////// Version 6 has 14 sectors//////////////////////////
 
 void t0_fitter::Begin(TTree * /*tree*/)
 {
    TString option = GetOption();
-}
-
-void t0_fitter::SlaveBegin(TTree * /*tree*/)
-{
-  TString option = GetOption();
 }
 
 Bool_t t0_fitter::Process(Long64_t entry)
@@ -165,11 +161,6 @@ Bool_t t0_fitter::Process(Long64_t entry)
 
   }
  
-void t0_fitter::SlaveTerminate()
-{
-    
-}
-
 void t0_fitter::Terminate()
 {
 
@@ -211,7 +202,7 @@ void t0_fitter::Terminate()
       gr[wheel][station]->SetMarkerSize(1.);
       gr[wheel][station]->SetLineColor(station+1);
     }
-    //can3[wheel]->Print(namet0);  
+    can3[wheel]->Print(namet0);  
     can3[wheel]->Write();  
     can3[wheel]->Close();
   }
@@ -232,7 +223,10 @@ void t0_fitter::Terminate()
     for(int st=0;st<4;st++){
       for(int sec=0;sec<14;sec++){
 	if(sec>11 && st!=3)continue;
-	if(T0[w][st][sec]->GetEntries()==0)continue;
+	if(T0[w][st][sec]->GetEntries()==0){
+ 	  fitdata<<"missing chamber Wh"<<w-2<<" MB"<<st+1<<" Sec"<<sec+1<<endl; 
+ 	  continue;
+ 	}
 	TString namet0s = Form("t0_Wh%d_MB%d_Sec%d.gif",w-2,st+1,sec+1); 
   	can4[w][st][sec]= new TCanvas(); 
 	can4[w][st][sec]->cd(1);
@@ -250,7 +244,7 @@ void t0_fitter::Terminate()
 	myfit->SetParName(1,"mean");
 	myfit->SetParName(2,"sigma");
 	gStyle->SetOptFit(0111);
-	//gStyle->SetOptStat(0);
+	gStyle->SetOptStat(0);
 	double bxmean= BX[w][st][sec]->GetMean();
 	h_fits[st]->Fill(mean);
 	if(st==3 && (sec==2||sec==3||sec==4||sec==12))thirdpeak+=mean;
@@ -258,7 +252,7 @@ void t0_fitter::Terminate()
 	else mainpeak+=mean;
 	fitdata<<"      "<<showpos<<w-2<<noshowpos<<"      "<<st+1<<"      "<<setfill('0') << setw(2)<< sec+1<<"      "<< fixed << setprecision(4)<<showpos<<mean<<"   "<<noshowpos<<meanerr<<"     "<<fabs(sigma)<<"   "<<sigmaerr<<"     "<<showpos<<bxmean<<endl;
 	//printf("wheel %3d station %2d sector %3d <t0>= %7.4f +/- %7.4f sigma= %7.4f +/- %7.4f\n",w-2,st+1,sec+1,mean,meanerr,sigma,sigmaerr);
-	//can4[w][st][sec]->Print(namet0s); 
+	can4[w][st][sec]->Print(namet0s); 
 	T0[w][st][sec]->Write();
 	can4[w][st][sec]->Close(); 
       }
