@@ -1,0 +1,219 @@
+#define MyEffWithDigis_all_cxx
+#include "MyEffWithDigis_all.h"
+#include <TStyle.h>
+#include <TCanvas.h>
+#include <iostream>
+#include <TVectorF.h>
+#include <TH2.h>
+#include <stdio.h>
+#include <string>
+#include "Riostream.h"
+#include "TVectorT.h"
+#include "TString.h"
+
+void MyEffWithDigis_all::Begin(TTree * /*tree*/)
+{
+  cout << " Begins " <<  endl;
+ 
+}
+
+void MyEffWithDigis_all::Loop()
+{
+   if (fChain == 0) return;
+
+   Long64_t nentries = fChain->GetEntriesFast();
+
+   
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+     if(fmod(jentry,10000)==0)cout << " Processing entry : " << jentry << endl;
+     Long64_t ientry = LoadTree(jentry);
+     if (ientry < 0) break;
+     fChain->GetEntry(jentry); 
+       
+     // 4D Segments
+     int NSegs=dtsegm4D_wheel->size();
+     int NPhiSegs=0;
+     int NZSegs=0;
+     //if(fmod(jentry,10000)==0)cout << " Segments= " << NSegs << endl;
+    
+     // Loop in Segments to compute efficiencie L1Phi2 Different HV, Layer to Study
+     for(int iseg=0;iseg<NSegs; iseg++)
+       {
+	 if((*dtsegm4D_hasPhi)[iseg] && (*dtsegm4D_phinhits)[iseg]>4 && fabs((*dtsegm4D_t0)[iseg])<50 )
+	   {
+
+	     int iwh=(*dtsegm4D_wheel)[iseg];
+	     int is =(*dtsegm4D_sector)[iseg];
+	     int ist=(*dtsegm4D_station)[iseg];
+	     
+	     TVectorF * VPhi_hitsSL = (TVectorF*)dtsegm4D_phi_hitsSuperLayer->At(iseg); // Problems interactively
+	     TVectorF * VPhi_hitsL = (TVectorF*)dtsegm4D_phi_hitsLayer->At(iseg); 
+	     TVectorF * VPhi_hitsW = (TVectorF*)dtsegm4D_phi_hitsWire->At(iseg); 
+	     TVectorF * VPhi_hitsPos = (TVectorF*)dtsegm4D_phi_hitsPos->At(iseg); 
+	     float *  hitsSL_phi=VPhi_hitsSL->GetMatrixArray();
+	     float *  hitsL_phi =VPhi_hitsL->GetMatrixArray();
+	     float *  hitsW_phi =VPhi_hitsW->GetMatrixArray();
+	     float *  hitsPos_phi =VPhi_hitsPos->GetMatrixArray();
+	     int nhPhi  = (*dtsegm4D_phinhits)[iseg];
+                   
+	     // Fill Phihits in Segment
+	     // hPhiHitsSeg[iwh+2][ist-1][is-1]->Fill(nhPhi); 
+	
+	     int totRelevantHits=0;
+	     int WireFound=-1;int PosFound=-1;
+	     int ReferencePhiHits=0; //All hits excluding the Phi2 L1 underStudy 
+	     TVectorF * VLayersExpPos = (TVectorF*)dtsegm4D_hitsExpPos->At(iseg); // Problems interactively
+	     TVectorF * VLayersExpWire = (TVectorF*)dtsegm4D_hitsExpWire->At(iseg); // Problems interactively
+	     float * LayersExpPos=VLayersExpPos->GetMatrixArray();
+	     float * LayersExpWire=VLayersExpWire->GetMatrixArray();
+	     float residual=0;
+	     
+
+	     for(int ih=0;ih<nhPhi;ih++)
+	       {// Loop in Hits
+		 int isl=hitsSL_phi[ih];
+		 int il= hitsL_phi[ih];
+
+		 if(isl==3 && il==1){ // Phi2 Layer1
+		   WireFound= hitsW_phi[ih];
+		   PosFound= hitsPos_phi[ih];
+		   residual=PosFound-LayersExpPos[8];
+		 }
+		 else ReferencePhiHits++;
+	       }
+	     if(ReferencePhiHits>4) //Hits in both SLs 
+	       //if(ReferencePhiHits>6) //Hits in ALL layers of both SLs (except the layer under study) 
+	       {
+		 // All tracks
+		 hAll[iwh+2][ist-1][is-1]->Fill(residual); 
+	      
+		 // Finding Hit 
+		 if( WireFound ==  LayersExpWire[8] ) 
+		   {
+		     hFound[iwh+2][ist-1][is-1]->Fill(residual); 
+		     hFoundDigi[iwh+2][ist-1][is-1]->Fill(residual); 
+		   }
+		 else
+		   {// Look for possible unassociated hit inside the Digis
+		     //cout<<"wire found != layer exp wire"<<endl;
+		     int FoundDigi=0;
+		     for(int nDigi=0; nDigi<Ndigis; nDigi++)
+		       {
+			 if( (*digi_wheel)[nDigi]== iwh         && (*digi_sector)[nDigi]==is    
+			     && (*digi_station)[nDigi]==ist        && (*digi_sl)[nDigi]==3
+			     && (*digi_layer)[nDigi]==1 && (*digi_wire)[nDigi] ==  LayersExpWire[8]
+			     //&& (*digi_layer)[nDigi]==hitsL_phi[8] && abs((*digi_wire)[nDigi] - LayersExpWire[8])<2
+			     )
+			   FoundDigi++;
+		       }
+		     if(FoundDigi>0)  hFoundDigi[iwh+2][ist-1][is-1]->Fill(residual); 
+		   }
+	       }// End cut in number of hits Phi1+Phi2 excluding L1Phi2
+	   }// End cut number of hits and T0
+       }// End loop in Segments
+   }// End loop in entries
+}
+
+void MyEffWithDigis_all::Terminate()
+{
+  int nbins[5][4][14];
+  float xntot[5][4][14];
+  float xnfound[5][4][14];
+  float xnfounddigi[5][4][14];
+  ofstream efftxt (Form("eff_run%d.txt",runnumber));
+
+  efftxt<<"    Wheel "<<"  "<<" MB "<<"  "<<" Sector "<<" "<< " Efficiency "<<""<<" Digi Efficiency "<<endl;
+  efftxt<< " ................................................................................. " <<endl;
+
+  for(int wheel=0;wheel<5;wheel++){
+    for(int station=0;station<4;station++){
+      for(int sector=0;sector<14;sector++){
+	if(sector>11 && station!=3)continue;
+	totalnumber[wheel][station][sector]=hAll[wheel][station][sector]  ->GetEntries();
+	if(totalnumber[wheel][station][sector]==0){
+ 	  efftxt<<"missing chamber Wheel"<<wheel-2<<" MB"<<station+1<<" Sector"<<sector+1<<endl; 
+ 	  continue;
+	}
+	foundnumber[wheel][station][sector]=hFound[wheel][station][sector]->GetEntries();
+	founddiginumber[wheel][station][sector]=hFoundDigi[wheel][station][sector]->GetEntries();
+	Eff[wheel][station][sector]=100*foundnumber[wheel][station][sector]/totalnumber[wheel][station][sector];
+	EffDigis[wheel][station][sector]=100*founddiginumber[wheel][station][sector]/totalnumber[wheel][station][sector];
+
+	efftxt<<"      "<<showpos<<wheel-2<<noshowpos<<"      "<<station+1<<"      "<<setfill('0') << setw(2)<< sector+1<<"      "<< fixed << setprecision(4)<<Eff[wheel][station][sector]<<"    "<<EffDigis[wheel][station][sector]<<endl;
+      }
+    }
+  }
+  cout << " Creating output file   " <<Form("eff_run%d.txt",runnumber)  <<  endl;
+
+  cout << " Ends " <<  endl;
+}
+
+void MyEffWithDigis_all::SaveHistos(TFile * fhout)
+{
+  cout<<" Saving histograms"<<endl;
+  
+  for(int wheel=0;wheel<5;wheel++){
+    for(int station=0;station<4;station++){
+      for(int sector=0;sector<14;sector++){
+	if(sector>11 && station!=3)continue;
+	hAll[wheel][station][sector]->Write();
+	hFound[wheel][station][sector]->Write();
+	hFoundDigi[wheel][station][sector]->Write();
+      }
+    }
+  }
+
+}
+ 
+int main(int argc, char **argv){
+
+ char infilename[400];
+ char outfilename[400];
+
+ if(argc < 3)
+ {
+    printf(" ***************************************************************************** \n" );
+    printf(" ****    ERROR: Please enter the input directory and root filename \n" );
+    printf(" ****    Usage: MyEffWithDigis_all.exe directorypath  InputFilename.root \n");
+    printf(" ****    EXITING PROGRAM!!!!! \n" );
+    printf(" ***************************************************************************** \n" );
+    exit(0);
+ }
+ else
+ {
+   sprintf(infilename,"%s/%s",argv[1],argv[2]);
+   printf(" File to be used: %s \n",infilename);
+ }
+
+// TREE FROM INPUT FILE
+   TChain chain("DTTree");
+   chain.Add(infilename);
+
+   MyEffWithDigis_all * EffMyAnalysis = new MyEffWithDigis_all();
+   EffMyAnalysis->Begin(&chain);
+   EffMyAnalysis->Init(&chain);
+
+   Int_t nentries = (Int_t)chain.GetEntries();
+   cout << " >>>>  " <<  nentries << " Entries to be processed"  <<  endl;
+   EffMyAnalysis->Loop();
+
+   // OUTPUT FILES
+   TString inputfile =argv[2];
+   TString outputfile=inputfile.ReplaceAll("DTTree_R","r");
+   sprintf(outfilename,"eff_%s",outputfile.Data());
+   TFile * fhistoout = new TFile (outfilename, "RECREATE");
+   cout << " Creating output file   " << outfilename  <<  endl;
+
+   EffMyAnalysis->SaveHistos(fhistoout);
+   EffMyAnalysis->Terminate();
+   
+
+
+} // END main
+
+
+
+
+
+
+
