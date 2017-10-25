@@ -116,6 +116,8 @@ void MyEffWithDigis_all::Loop()
 
 void MyEffWithDigis_all::Terminate()
 {
+
+  //////////////////////////////////////////////////////////TABLE/////////////////////////////////////////////////////////////
   int nbins[5][4][14];
   float xntot[5][4][14];
   float xnfound[5][4][14];
@@ -138,14 +140,69 @@ void MyEffWithDigis_all::Terminate()
 	founddiginumber[wheel][station][sector]=hFoundDigi[wheel][station][sector]->GetEntries();
 	Eff[wheel][station][sector]=100*foundnumber[wheel][station][sector]/totalnumber[wheel][station][sector];
 	EffDigis[wheel][station][sector]=100*founddiginumber[wheel][station][sector]/totalnumber[wheel][station][sector];
+	heff[station]->Fill(sector,wheel-3,EffDigis[wheel][station][sector]);
 
 	efftxt<<"      "<<showpos<<wheel-2<<noshowpos<<"      "<<station+1<<"      "<<setfill('0') << setw(2)<< sector+1<<"      "<< fixed << setprecision(4)<<Eff[wheel][station][sector]<<"    "<<EffDigis[wheel][station][sector]<<endl;
       }
     }
   }
-  cout << " Creating output file   " <<Form("eff_run%d.txt",runnumber)  <<  endl;
+  cout << " Creating table   " <<Form("eff_run%d.txt",runnumber)  <<  endl;
 
-  cout << " Ends " <<  endl;
+ //////////////////////////////////////////////////////////COLOURED PLOTS/////////////////////////////////////////////////////////////
+// 
+
+  gROOT->Reset();
+  gROOT->SetStyle("Plain");
+  gStyle->SetPalette(1);
+  gStyle->SetPaintTextFormat("5.3f");
+
+
+
+  for(int i=0;i<3;i++) {
+    heff[i]->GetYaxis()->SetNdivisions(5);
+    heff[i]->GetXaxis()->SetNdivisions(12);  
+    for(Int_t w=0;w<5;w++)heff[i]->GetYaxis()->SetBinLabel(w+1,wheel_label[w]);
+    for(Int_t se=0;se<12;se++)heff[i]->GetXaxis()->SetBinLabel(se+1,sector_label[se]);
+  }
+  heff[3]->GetYaxis()->SetNdivisions(5);  
+  heff[3]->GetXaxis()->SetNdivisions(14);
+  for(Int_t w=0;w<5;w++)heff[3]->GetYaxis()->SetBinLabel(w+1,wheel_label[w]);
+  for(Int_t se=0;se<14;se++)heff[3]->GetXaxis()->SetBinLabel(se+1,sector_label[se]);
+
+
+  for(int i=0;i<4;i++) {
+    heff[i]->GetXaxis()->SetTitle("Sector");
+    heff[i]->GetYaxis()->SetTitle("Wheel");
+    heff[i]->GetXaxis()->CenterTitle(1); 
+    heff[i]->GetYaxis()->CenterTitle(1);
+    heff[i]->GetXaxis()->SetTitleOffset(1.2);
+    heff[i]->GetYaxis()->SetTitleOffset(1.4);
+    heff[i]->SetStats(0);     
+  }
+  cout << " Creating canvases   "<<endl;
+
+  TCanvas *can[4];
+  for(int i=0;i<4;i++){
+
+    can[i] = new TCanvas();
+    can[i]->SetGrid();
+    can[i]->SetLeftMargin(0.15);
+    can[i]->SetBottomMargin(0.15);
+    can[i]->SetRightMargin(0.25);
+    can[i]->SetTopMargin(0.20);
+    heff[i]->GetXaxis()->SetTitleFont(22);
+    heff[i]->GetXaxis()->SetLabelFont(22);
+    heff[i]->GetXaxis()->SetLabelSize(0.03);
+    heff[i]->GetXaxis()->SetTitleSize(0.04);
+    heff[i]->SetMaximum(100);
+    heff[i]->SetMinimum(65);
+    can[i]->cd();
+    heff[i]->Draw("colz");
+    heff[i]->Draw("TEXTsame45");
+    can[i]->Print(Form("MB%d_efficiency.gif",i+1));
+   }
+
+ 
 }
 
 void MyEffWithDigis_all::SaveHistos(TFile * fhout)
@@ -162,6 +219,12 @@ void MyEffWithDigis_all::SaveHistos(TFile * fhout)
       }
     }
   }
+
+for(int station=0;station<4;station++){
+  heff[station]->Write();
+ }
+
+
 
 }
  
@@ -197,17 +260,17 @@ int main(int argc, char **argv){
    cout << " >>>>  " <<  nentries << " Entries to be processed"  <<  endl;
    EffMyAnalysis->Loop();
 
-   // OUTPUT FILES
+ // OUTPUT FILES
    TString inputfile =argv[2];
    TString outputfile=inputfile.ReplaceAll("DTTree_R","r");
    sprintf(outfilename,"eff_%s",outputfile.Data());
    TFile * fhistoout = new TFile (outfilename, "RECREATE");
-   cout << " Creating output file   " << outfilename  <<  endl;
+   cout << " Creating root file " << outfilename  <<  endl;
 
-   EffMyAnalysis->SaveHistos(fhistoout);
    EffMyAnalysis->Terminate();
+   EffMyAnalysis->SaveHistos(fhistoout);
    
-
+   cout << " Ends " <<  endl;
 
 } // END main
 

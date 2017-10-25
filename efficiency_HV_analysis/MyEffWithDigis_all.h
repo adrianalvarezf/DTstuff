@@ -67,6 +67,11 @@ public :
    Float_t Eff[5][4][14];
    Float_t EffDigis[5][4][14];
   
+   TH2F *heff[4];
+
+   char const *sector_label[14]  = {"S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13","S14"};
+   char const *wheel_label[5] = {"W-2","W-1","W 0","W+1","W+2"};
+
    vector<TString> *hlt_path;
    vector<short>   *digi_wheel;
    vector<short>   *digi_sector;
@@ -749,6 +754,10 @@ void MyEffWithDigis_all::Init(TTree *tree)
      }
    }
 
+   for(int station=0;station<4;station++){
+     if(station!=3)heff[station]= new TH2F(Form("efficiencyMB%",station+1),Form("efficiencyMB%",station+1),12,0,12,5,-3,2);
+     else heff[station]= new TH2F(Form("efficiencyMB%",station+1),Form("efficiencyMB%",station+1),14,0,14,5,-3,2);
+   }
 
 }
 
