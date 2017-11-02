@@ -51,9 +51,9 @@ Bool_t t0_fitter::Process(Long64_t entry)
   vector <float>  &my_Mu_eta = *Mu_eta;
 
  
-   
+  Long64_t nentries = fChain->GetEntriesFast();
   fChain->GetEntry(entry);
-  if(fmod(entry,10000)==0) Printf(" ..... event %d", int(entry));
+  if(fmod(entry,10000)==0) Printf(" ..... event %d of %d", int(entry), int(nentries));
 
 
   int ndtsegm4D =  dtsegm4D_station->size();
@@ -163,7 +163,7 @@ Bool_t t0_fitter::Process(Long64_t entry)
  
 void t0_fitter::Terminate()
 {
-
+  ////////////////////////////////////////////////////////////T0 FITS, GIFS AND TABLES/////////////////////////
  
   TFile *my_new_file = new TFile(Form("t0_histograms_run%d.root",runnumber),"RECREATE"); 
   //TFile *my_new_file = new TFile("t0_histograms_Run295463_and_296173.root","RECREATE"); 
@@ -202,7 +202,7 @@ void t0_fitter::Terminate()
       gr[wheel][station]->SetMarkerSize(1.);
       gr[wheel][station]->SetLineColor(station+1);
     }
-    can3[wheel]->Print(namet0);  
+    //can3[wheel]->Print(namet0);  
     can3[wheel]->Write();  
     can3[wheel]->Close();
   }
@@ -252,16 +252,19 @@ void t0_fitter::Terminate()
 	else mainpeak+=mean;
 	fitdata<<"      "<<showpos<<w-2<<noshowpos<<"      "<<st+1<<"      "<<setfill('0') << setw(2)<< sec+1<<"      "<< fixed << setprecision(4)<<showpos<<mean<<"   "<<noshowpos<<meanerr<<"     "<<fabs(sigma)<<"   "<<sigmaerr<<"     "<<showpos<<bxmean<<endl;
 	//printf("wheel %3d station %2d sector %3d <t0>= %7.4f +/- %7.4f sigma= %7.4f +/- %7.4f\n",w-2,st+1,sec+1,mean,meanerr,sigma,sigmaerr);
-	can4[w][st][sec]->Print(namet0s); 
+	//can4[w][st][sec]->Print(namet0s); 
+	if(sec==5)to_shift[w][st]=mean;
 	T0[w][st][sec]->Write();
 	can4[w][st][sec]->Close(); 
       }
     }
   }
+  /*
   secondpeak=secondpeak/28;
   thirdpeak=thirdpeak/20;
   mainpeak=mainpeak/202;
   cout<<"main peak=   "<<mainpeak<<"   second peak=   "<<secondpeak<<"    third peak=   "<<thirdpeak<<endl;
+  */
   TCanvas *histomean= new TCanvas();
   for(int a=0;a<4;a++){
     h_fits[a]->SetFillColor(a+1);
@@ -273,7 +276,7 @@ void t0_fitter::Terminate()
   hs->SetTitle("<t0> from fits");
   histomean->Print("histo_t0means.gif");
 
-  
+  ////////////////////////////////////////MUON VARIABLES//////////////////////////////////////////////
   /*
   TFile *my_new_file2 = new TFile("histograms_of_muon_variables.root","RECREATE"); 
   TCanvas *angcanv =new TCanvas();
@@ -322,5 +325,30 @@ void t0_fitter::Terminate()
 
   //cout<<" segments for two muons = "<<segmentsfortwo<<" segments total = "<<segmentstotal<<" fraction "<<(double)segmentsfortwo/segmentstotal<<endl;
 
+  /////////////////////////////////////////////////TO VS PATH LENGTH/////////////////////////////////////
+
+  // 4 Stations, 5 Wheels
+  // Sector 4 only 
+  double angle[5][4]={{38.6,44.2,49,52.8},{60,62.5,67.7,70.4},{90,90,90,90},{60,62.5,67.7,70.4},{38.6,44.2,39,52.8}};
+  double path[5][4];
+  int p=1;
+
+  // Calculate path lengths and fill t0s
+  for (int st=0; st<4;st++){
+    for (int w=0; w<5;w++){
+      path[w][st]=TMath::Cos(angle[w][st]*TMath::Pi()/180)/TMath::Sin(angle[w][st]*TMath::Pi()/180);
+      cout<<"Length of path for MB"<<w+1<<" Wheel"<<st-2<<" = "<<path[w][st]<<endl;
+      gr1->SetPoint(p,path[w][st],to_shift[w][st]);
+      p++;
+    }
+  }
+  TCanvas *c1= new TCanvas();
+  gr1->GetXaxis()->SetTitle("<Path projection along wire> (effective height)");
+  gr1->GetYaxis()->SetTitle("<t0_shift> (ns)");
+  gr1->SetMarkerStyle(20);
+  gr1->Draw("AP");
+  gr1->Fit("pol1");
+  c1->SaveAs("t0shift.gif") ;
   
+
 }

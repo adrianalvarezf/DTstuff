@@ -59,10 +59,11 @@ public :
    int segmentstotal=0;
    int mtight=0;
   
-
    
+   double to_shift[5][4];
    TH1F *T0[5][4][14];
    TH1F *BX[5][4][14];
+
    TH1F *mu_tight = new TH1F("number_of_tight_muons","number_of_tight_muons",4,0,4);
    TH1F *ang_hist = new TH1F("ang_hist","segment_angle_hist",200,-80,80);
    TH1F *mu_phi = new TH1F("mu_phi","selected muon phis",100,-3.2,3.2);
@@ -77,7 +78,8 @@ public :
 
    THStack *hs = new THStack("hs","");
    TH1F *h_fits[4];
-   
+   TGraph *gr1= new TGraph();
+
    vector<TString> *hlt_path;
    vector<short>   *digi_wheel;
    vector<short>   *digi_sector;
@@ -178,20 +180,7 @@ public :
    vector<float>   *Mu_z_mb2_mu;
    vector<float>   *Mu_phi_mb2_mu;
    vector<float>   *Mu_pseta_mb2_mu;
-   vector<short>   *gmt_bx;
-   vector<float>   *gmt_phi;
-   vector<float>   *gmt_eta;
-   vector<float>   *gmt_pt;
-   vector<short>   *gmt_qual;
-   vector<short>   *gmt_detector;
-   vector<short>   *gmt_cands_fwd;
-   vector<short>   *gmt_cands_isRpc;
-   vector<short>   *gmt_cands_bx;
-   vector<float>   *gmt_cands_phi;
-   vector<float>   *gmt_cands_eta;
-   vector<float>   *gmt_cands_pt;
-   vector<short>   *gmt_cands_qual;
-   vector<short>   *gmt_cands_ismatched;
+   
    vector<short>   *gt_algo_bit;
    vector<short>   *gt_algo_bx;
    vector<short>   *gt_tt_bit;
@@ -210,8 +199,7 @@ public :
    Short_t         Ndtsegments;
    Short_t         Ncscsegments;
    Short_t         Nmuons;
-   Short_t         Ngmt;
-   Short_t         Ngmtcands;
+ 
    Short_t         Ngtalgo;
    Short_t         Ngttechtrig;
    Short_t         Nhlt;
@@ -336,20 +324,7 @@ public :
    TBranch        *b_Mu_z_mb2_mu;   //!
    TBranch        *b_Mu_phi_mb2_mu;   //!
    TBranch        *b_Mu_pseta_mb2_mu;   //!
-   TBranch        *b_gmt_bx;   //!
-   TBranch        *b_gmt_phi;   //!
-   TBranch        *b_gmt_eta;   //!
-   TBranch        *b_gmt_pt;   //!
-   TBranch        *b_gmt_qual;   //!
-   TBranch        *b_gmt_detector;   //!
-   TBranch        *b_gmt_cands_fwd;   //!
-   TBranch        *b_gmt_cands_isRpc;   //!
-   TBranch        *b_gmt_cands_bx;   //!
-   TBranch        *b_gmt_cands_phi;   //!
-   TBranch        *b_gmt_cands_eta;   //!
-   TBranch        *b_gmt_cands_pt;   //!
-   TBranch        *b_gmt_cands_qual;   //!
-   TBranch        *b_gmt_cands_ismatched;   //!
+  
    TBranch        *b_gt_algo_bit;   //!
    TBranch        *b_gt_algo_bx;   //!
    TBranch        *b_gt_tt_bit;   //!
@@ -368,8 +343,7 @@ public :
    TBranch        *b_Ndtsegments;   //!
    TBranch        *b_Ncscsegments;   //!
    TBranch        *b_Nmuons;   //!
-   TBranch        *b_Ngmt;   //!
-   TBranch        *b_Ngmtcands;   //!
+ 
    TBranch        *b_Ngtalgo;   //!
    TBranch        *b_Ngttt;   //!
    TBranch        *b_Nhlt;   //!
@@ -504,20 +478,7 @@ void t0_fitter::Init(TTree *tree)
    Mu_z_mb2_mu = 0;
    Mu_phi_mb2_mu = 0;
    Mu_pseta_mb2_mu = 0;
-   gmt_bx = 0;
-   gmt_phi = 0;
-   gmt_eta = 0;
-   gmt_pt = 0;
-   gmt_qual = 0;
-   gmt_detector = 0;
-   gmt_cands_fwd = 0;
-   gmt_cands_isRpc = 0;
-   gmt_cands_bx = 0;
-   gmt_cands_phi = 0;
-   gmt_cands_eta = 0;
-   gmt_cands_pt = 0;
-   gmt_cands_qual = 0;
-   gmt_cands_ismatched = 0;
+  
    gt_algo_bit = 0;
    gt_algo_bx = 0;
    gt_tt_bit = 0;
@@ -654,20 +615,7 @@ void t0_fitter::Init(TTree *tree)
    fChain->SetBranchAddress("Mu_z_mb2_mu", &Mu_z_mb2_mu, &b_Mu_z_mb2_mu);
    fChain->SetBranchAddress("Mu_phi_mb2_mu", &Mu_phi_mb2_mu, &b_Mu_phi_mb2_mu);
    fChain->SetBranchAddress("Mu_pseta_mb2_mu", &Mu_pseta_mb2_mu, &b_Mu_pseta_mb2_mu);
-   fChain->SetBranchAddress("gmt_bx", &gmt_bx, &b_gmt_bx);
-   fChain->SetBranchAddress("gmt_phi", &gmt_phi, &b_gmt_phi);
-   fChain->SetBranchAddress("gmt_eta", &gmt_eta, &b_gmt_eta);
-   fChain->SetBranchAddress("gmt_pt", &gmt_pt, &b_gmt_pt);
-   fChain->SetBranchAddress("gmt_qual", &gmt_qual, &b_gmt_qual);
-   fChain->SetBranchAddress("gmt_detector", &gmt_detector, &b_gmt_detector);
-   fChain->SetBranchAddress("gmt_cands_fwd", &gmt_cands_fwd, &b_gmt_cands_fwd);
-   fChain->SetBranchAddress("gmt_cands_isRpc", &gmt_cands_isRpc, &b_gmt_cands_isRpc);
-   fChain->SetBranchAddress("gmt_cands_bx", &gmt_cands_bx, &b_gmt_cands_bx);
-   fChain->SetBranchAddress("gmt_cands_phi", &gmt_cands_phi, &b_gmt_cands_phi);
-   fChain->SetBranchAddress("gmt_cands_eta", &gmt_cands_eta, &b_gmt_cands_eta);
-   fChain->SetBranchAddress("gmt_cands_pt", &gmt_cands_pt, &b_gmt_cands_pt);
-   fChain->SetBranchAddress("gmt_cands_qual", &gmt_cands_qual, &b_gmt_cands_qual);
-   fChain->SetBranchAddress("gmt_cands_ismatched", &gmt_cands_ismatched, &b_gmt_cands_ismatched);
+  
    fChain->SetBranchAddress("gt_algo_bit", &gt_algo_bit, &b_gt_algo_bit);
    fChain->SetBranchAddress("gt_algo_bx", &gt_algo_bx, &b_gt_algo_bx);
    fChain->SetBranchAddress("gt_tt_bit", &gt_tt_bit, &b_gt_tt_bit);
@@ -686,8 +634,7 @@ void t0_fitter::Init(TTree *tree)
    fChain->SetBranchAddress("Ndtsegments", &Ndtsegments, &b_Ndtsegments);
    fChain->SetBranchAddress("Ncscsegments", &Ncscsegments, &b_Ncscsegments);
    fChain->SetBranchAddress("Nmuons", &Nmuons, &b_Nmuons);
-   fChain->SetBranchAddress("Ngmt", &Ngmt, &b_Ngmt);
-   fChain->SetBranchAddress("Ngmtcands", &Ngmtcands, &b_Ngmtcands);
+  
    fChain->SetBranchAddress("Ngtalgo", &Ngtalgo, &b_Ngtalgo);
    fChain->SetBranchAddress("Ngttechtrig", &Ngttechtrig, &b_Ngttt);
    fChain->SetBranchAddress("Nhlt", &Nhlt, &b_Nhlt);

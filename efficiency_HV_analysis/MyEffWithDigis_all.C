@@ -171,6 +171,7 @@ void MyEffWithDigis_all::Terminate()
 
 
   for(int i=0;i<4;i++) {
+    heff[i]->SetTitle(Form("MB%d",i+1));
     heff[i]->GetXaxis()->SetTitle("Sector");
     heff[i]->GetYaxis()->SetTitle("Wheel");
     heff[i]->GetXaxis()->CenterTitle(1); 
@@ -201,7 +202,6 @@ void MyEffWithDigis_all::Terminate()
     heff[i]->Draw("TEXTsame45");
     can[i]->Print(Form("MB%d_efficiency.gif",i+1));
    }
-
  
 }
 
