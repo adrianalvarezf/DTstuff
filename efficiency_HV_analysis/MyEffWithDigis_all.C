@@ -10,6 +10,7 @@
 #include "Riostream.h"
 #include "TVectorT.h"
 #include "TString.h"
+#include "TMath.h"
 
 void MyEffWithDigis_all::Begin(TTree * /*tree*/)
 {
@@ -25,7 +26,7 @@ void MyEffWithDigis_all::Loop()
 
    
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
-     if(fmod(jentry,10000)==0)cout << " Processing entry : " << jentry << endl;
+     if(fmod(jentry,10000)==0)cout << " Processing entry : " << jentry <<" of "<<nentries<<endl;
      Long64_t ientry = LoadTree(jentry);
      if (ientry < 0) break;
      fChain->GetEntry(jentry); 
@@ -202,7 +203,35 @@ void MyEffWithDigis_all::Terminate()
     heff[i]->Draw("TEXTsame45");
     can[i]->Print(Form("MB%d_efficiency.gif",i+1));
    }
- 
+  /////////////////////////////////////////////////EFFICIENCY VS PATH LENGTH/////////////////////////////////////
+  
+  // 4 Stations, 5 Wheels
+  // Sector 4 only 
+  double angle[5][4]={{38.6,44.2,49,52.8},{60,62.5,67.7,70.4},{90,90,90,90},{60,62.5,67.7,70.4},{38.6,44.2,49,52.8}};
+  double path[5][4];
+  
+  // Calculate path lengths and fill with efficiencies
+  for (int st=0; st<4;st++){
+    int p=0;
+    for (int w=0; w<5;w++){
+      //if(w==2)continue;
+      path[w][st]=TMath::Cos(angle[w][st]*TMath::Pi()/180)/TMath::Sin(angle[w][st]*TMath::Pi()/180);
+      cout<<"Length of path for MB"<<st+1<<" Wheel"<<w-2<<" = "<<path[w][st]<<"  Efficiency = "<<EffDigis[w][st][3]<<endl;
+      gr[st]->SetPoint(p,path[w][st],EffDigis[w][st][3]);
+      gr[st]->SetMarkerColor(st+1);
+      p++;
+    }
+  }
+  
+  TCanvas *c1= new TCanvas();
+  for (int st=0; st<4;st++){mg->Add(gr[st]);gr[st]->SetMarkerSize(1.); gr[st]->SetMarkerStyle(20);}
+  mg->Draw("AP");
+  mg->GetXaxis()->SetTitle("<Path projection along wire> (effective height)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+  mg->Fit("pol1");
+  c1->SaveAs("effvspath.gif") ;
+  c1->SaveAs("effvspath.root") ;
+  
 }
 
 void MyEffWithDigis_all::SaveHistos(TFile * fhout)
@@ -237,7 +266,7 @@ int main(int argc, char **argv){
  {
     printf(" ***************************************************************************** \n" );
     printf(" ****    ERROR: Please enter the input directory and root filename \n" );
-    printf(" ****    Usage: MyEffWithDigis_all.exe directorypath  InputFilename.root \n");
+    printf(" ****    Usage: MyEffWithDigis_all.exe directorypath InputFilename.root \n");
     printf(" ****    EXITING PROGRAM!!!!! \n" );
     printf(" ***************************************************************************** \n" );
     exit(0);

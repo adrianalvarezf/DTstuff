@@ -326,7 +326,7 @@ void t0_fitter::Terminate()
   //cout<<" segments for two muons = "<<segmentsfortwo<<" segments total = "<<segmentstotal<<" fraction "<<(double)segmentsfortwo/segmentstotal<<endl;
 
   /////////////////////////////////////////////////TO VS PATH LENGTH/////////////////////////////////////
-
+  /*
   // 4 Stations, 5 Wheels
   // Sector 4 only 
   double angle[5][4]={{38.6,44.2,49,52.8},{60,62.5,67.7,70.4},{90,90,90,90},{60,62.5,67.7,70.4},{38.6,44.2,39,52.8}};
@@ -334,10 +334,10 @@ void t0_fitter::Terminate()
   int p=1;
 
   // Calculate path lengths and fill t0s
-  for (int st=0; st<4;st++){
-    for (int w=0; w<5;w++){
+  for (int w=0; w<5;w++){
+    for (int st=0; st<4;st++){
       path[w][st]=TMath::Cos(angle[w][st]*TMath::Pi()/180)/TMath::Sin(angle[w][st]*TMath::Pi()/180);
-      cout<<"Length of path for MB"<<w+1<<" Wheel"<<st-2<<" = "<<path[w][st]<<endl;
+      cout<<"Length of path for MB"<<st+1<<" Wheel"<<w-2<<" = "<<path[w][st]<<"  T0 = "<<to_shift[w][st]<<endl;
       gr1->SetPoint(p,path[w][st],to_shift[w][st]);
       p++;
     }
@@ -349,6 +349,6 @@ void t0_fitter::Terminate()
   gr1->Draw("AP");
   gr1->Fit("pol1");
   c1->SaveAs("t0shift.gif") ;
-  
+  */
 
 }

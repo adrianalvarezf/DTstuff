@@ -24,7 +24,8 @@ using namespace std;
 #include <iostream>
 #include <TH1F.h>
 #include <TH2F.h>
-
+#include "TGraph.h"
+#include "TMultiGraph.h"
 
 class MyEffWithDigis_all {
 public :
@@ -68,6 +69,8 @@ public :
    Float_t EffDigis[5][4][14];
   
    TH2F *heff[4];
+   TGraph *gr[4];
+   TMultiGraph *mg = new TMultiGraph();
 
    char const *sector_label[14]  = {"S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13","S14"};
    char const *wheel_label[5] = {"W-2","W-1","W 0","W+1","W+2"};
@@ -758,6 +761,8 @@ void MyEffWithDigis_all::Init(TTree *tree)
      if(station!=3)heff[station]= new TH2F(Form("efficiencyMB%",station+1),Form("efficiencyMB%",station+1),12,0,12,5,-3,2);
      else heff[station]= new TH2F(Form("efficiencyMB%",station+1),Form("efficiencyMB%",station+1),14,0,14,5,-3,2);
    }
+
+   for(int i=0;i<4;i++)gr[i]= new TGraph();
 
 }
 
