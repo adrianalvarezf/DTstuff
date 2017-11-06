@@ -206,18 +206,35 @@ void MyEffWithDigis_all::Terminate()
   /////////////////////////////////////////////////EFFICIENCY VS PATH LENGTH/////////////////////////////////////
   
   // 4 Stations, 5 Wheels
-  // Sector 4 only 
+  // Average of all sectors
+
   double angle[5][4]={{38.6,44.2,49,52.8},{60,62.5,67.7,70.4},{90,90,90,90},{60,62.5,67.7,70.4},{38.6,44.2,49,52.8}};
   double path[5][4];
-  
+  double averageeff[5][4]={0};
+
   // Calculate path lengths and fill with efficiencies
-  for (int st=0; st<4;st++){
+  for (int st=0;st<4;st++){
+    for (int w=0;w<5;w++){
+      for (int sec=0;sec<14;sec++){
+	if(sec>11 && st!=3)continue;
+	if(w==2&&st==3&&sec<5&&sec>1)continue;
+	if(w==2&&st==3&&sec==12)continue;
+	averageeff[w][st]+=EffDigis[w][st][sec];
+	//cout<<"Added efficiency ="<<averageeff[w][st]<<" "<<w<<" "<<st<<" "<<sec<<endl;
+      }
+      if(w!=2||st!=3)averageeff[w][st]=averageeff[w][st]/14;
+      else averageeff[w][st]=averageeff[w][st]/10;
+      //cout<<"Average efficiency ="<<averageeff[w][st]<<endl;
+    }
+  }
+
+
+  for (int st=0;st<4;st++){
     int p=0;
-    for (int w=0; w<5;w++){
-      //if(w==2)continue;
+    for (int w=0;w<5;w++){
       path[w][st]=TMath::Cos(angle[w][st]*TMath::Pi()/180)/TMath::Sin(angle[w][st]*TMath::Pi()/180);
-      cout<<"Length of path for MB"<<st+1<<" Wheel"<<w-2<<" = "<<path[w][st]<<"  Efficiency = "<<EffDigis[w][st][3]<<endl;
-      gr[st]->SetPoint(p,path[w][st],EffDigis[w][st][3]);
+      cout<<"Length of path for MB"<<st+1<<" Wheel"<<w-2<<" = "<<path[w][st]<<"  Average efficiency = "<<averageeff[w][st]<<endl;
+      gr[st]->SetPoint(p,path[w][st],averageeff[w][st]);
       gr[st]->SetMarkerColor(st+1);
       p++;
     }
@@ -229,8 +246,8 @@ void MyEffWithDigis_all::Terminate()
   mg->GetXaxis()->SetTitle("<Path projection along wire> (effective height)");
   mg->GetYaxis()->SetTitle("Efficiency");
   mg->Fit("pol1");
-  c1->SaveAs("effvspath.gif") ;
-  c1->SaveAs("effvspath.root") ;
+  c1->SaveAs("effvspath_average.gif") ;
+  c1->SaveAs("effvspath_average.root") ;
   
 }
 
