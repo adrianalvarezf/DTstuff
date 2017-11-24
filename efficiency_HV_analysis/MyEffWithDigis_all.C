@@ -222,26 +222,31 @@ void MyEffWithDigis_all::Terminate()
 	averageeff[w][st]+=EffDigis[w][st][sec];
 	//cout<<"Added efficiency ="<<averageeff[w][st]<<" "<<w<<" "<<st<<" "<<sec<<endl;
       }
-      if(w!=2||st!=3)averageeff[w][st]=averageeff[w][st]/14;
-      else averageeff[w][st]=averageeff[w][st]/10;
+      if(st!=3)averageeff[w][st]=averageeff[w][st]/12;
+      if(w!=2&&st==3)averageeff[w][st]=averageeff[w][st]/14;
+      if(w==2&&st==3)averageeff[w][st]=averageeff[w][st]/10;
       //cout<<"Average efficiency ="<<averageeff[w][st]<<endl;
     }
   }
 
-
   for (int st=0;st<4;st++){
-    int p=0;
     for (int w=0;w<5;w++){
       path[w][st]=TMath::Cos(angle[w][st]*TMath::Pi()/180)/TMath::Sin(angle[w][st]*TMath::Pi()/180);
       cout<<"Length of path for MB"<<st+1<<" Wheel"<<w-2<<" = "<<path[w][st]<<"  Average efficiency = "<<averageeff[w][st]<<endl;
-      gr[st]->SetPoint(p,path[w][st],averageeff[w][st]);
-      gr[st]->SetMarkerColor(st+1);
-      p++;
+      gr[w][st]->SetPoint(0,path[w][st],averageeff[w][st]);
+      gr[w][st]->SetMarkerColor(st+1);
+      if(w<2)gr[w][st]->SetMarkerStyle(4);//Circle
+      if(w>=2)gr[w][st]->SetMarkerStyle(20);//Full circle
     }
   }
   
   TCanvas *c1= new TCanvas();
-  for (int st=0; st<4;st++){mg->Add(gr[st]);gr[st]->SetMarkerSize(1.); gr[st]->SetMarkerStyle(20);}
+  for (int w=0;w<5;w++){
+    for (int st=0;st<4;st++){
+      mg->Add(gr[w][st]);
+      gr[w][st]->SetMarkerSize(1.);
+    }
+  }
   mg->Draw("AP");
   mg->GetXaxis()->SetTitle("<Path projection along wire> (effective height)");
   mg->GetYaxis()->SetTitle("Efficiency");
