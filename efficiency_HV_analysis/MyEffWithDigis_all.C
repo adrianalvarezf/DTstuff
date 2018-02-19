@@ -10,6 +10,7 @@
 #include "Riostream.h"
 #include "TVectorT.h"
 #include "TString.h"
+#include "TMath.h"
 
 void MyEffWithDigis_all::Begin(TTree * /*tree*/)
 {
@@ -25,7 +26,7 @@ void MyEffWithDigis_all::Loop()
 
    
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
-     if(fmod(jentry,10000)==0)cout << " Processing entry : " << jentry << endl;
+     if(fmod(jentry,10000)==0)cout << " Processing entry : " << jentry <<" of "<<nentries<<endl;
      Long64_t ientry = LoadTree(jentry);
      if (ientry < 0) break;
      fChain->GetEntry(jentry); 
@@ -202,7 +203,57 @@ void MyEffWithDigis_all::Terminate()
     heff[i]->Draw("TEXTsame45");
     can[i]->Print(Form("MB%d_efficiency.gif",i+1));
    }
- 
+  /////////////////////////////////////////////////EFFICIENCY VS PATH LENGTH/////////////////////////////////////
+  
+  // 4 Stations, 5 Wheels
+  // Average of all sectors
+
+  double angle[5][4]={{38.6,44.2,49,52.8},{60,62.5,67.7,70.4},{90,90,90,90},{60,62.5,67.7,70.4},{38.6,44.2,49,52.8}};
+  double path[5][4];
+  double averageeff[5][4]={0};
+
+  // Calculate path lengths and fill with efficiencies
+  for (int st=0;st<4;st++){
+    for (int w=0;w<5;w++){
+      for (int sec=0;sec<14;sec++){
+	if(sec>11 && st!=3)continue;
+	if(w==2&&st==3&&sec<5&&sec>1)continue;
+	if(w==2&&st==3&&sec==12)continue;
+	averageeff[w][st]+=EffDigis[w][st][sec];
+	//cout<<"Added efficiency ="<<averageeff[w][st]<<" "<<w<<" "<<st<<" "<<sec<<endl;
+      }
+      if(st!=3)averageeff[w][st]=averageeff[w][st]/12;
+      if(w!=2&&st==3)averageeff[w][st]=averageeff[w][st]/14;
+      if(w==2&&st==3)averageeff[w][st]=averageeff[w][st]/10;
+      //cout<<"Average efficiency ="<<averageeff[w][st]<<endl;
+    }
+  }
+
+  for (int st=0;st<4;st++){
+    for (int w=0;w<5;w++){
+      path[w][st]=TMath::Cos(angle[w][st]*TMath::Pi()/180)/TMath::Sin(angle[w][st]*TMath::Pi()/180);
+      cout<<"Length of path for MB"<<st+1<<" Wheel"<<w-2<<" = "<<path[w][st]<<"  Average efficiency = "<<averageeff[w][st]<<endl;
+      gr[w][st]->SetPoint(0,path[w][st],averageeff[w][st]);
+      gr[w][st]->SetMarkerColor(st+1);
+      if(w<2)gr[w][st]->SetMarkerStyle(4);//Circle
+      if(w>=2)gr[w][st]->SetMarkerStyle(20);//Full circle
+    }
+  }
+  
+  TCanvas *c1= new TCanvas();
+  for (int w=0;w<5;w++){
+    for (int st=0;st<4;st++){
+      mg->Add(gr[w][st]);
+      gr[w][st]->SetMarkerSize(1.);
+    }
+  }
+  mg->Draw("AP");
+  mg->GetXaxis()->SetTitle("<Path projection along wire> (effective height)");
+  mg->GetYaxis()->SetTitle("Efficiency");
+  mg->Fit("pol1");
+  c1->SaveAs("effvspath_average.gif") ;
+  c1->SaveAs("effvspath_average.root") ;
+  
 }
 
 void MyEffWithDigis_all::SaveHistos(TFile * fhout)
@@ -237,7 +288,7 @@ int main(int argc, char **argv){
  {
     printf(" ***************************************************************************** \n" );
     printf(" ****    ERROR: Please enter the input directory and root filename \n" );
-    printf(" ****    Usage: MyEffWithDigis_all.exe directorypath  InputFilename.root \n");
+    printf(" ****    Usage: MyEffWithDigis_all.exe directorypath InputFilename.root \n");
     printf(" ****    EXITING PROGRAM!!!!! \n" );
     printf(" ***************************************************************************** \n" );
     exit(0);
