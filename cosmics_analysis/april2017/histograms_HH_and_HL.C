@@ -46,9 +46,10 @@ Bool_t histograms_HH_and_HL::Process(Long64_t entry)
   vector<int>     &my_Mu_numberOfTrackerHits_glb = *Mu_numberOfTrackerHits_glb;
   vector<int>     &my_Mu_numberOfHits_sta = *Mu_numberOfHits_sta;
 
-
+  Long64_t nentries = fChain->GetEntriesFast();
   fChain->GetEntry(entry);
-  if(fmod(entry,10000)==0) Printf(" ..... event %d", int(entry));
+  //if(fmod(entry,10000)==0) Printf(" ..... event %d", int(entry));
+  if(fmod(entry,10000)==0) Printf(" ..... event %d of %d", int(entry), int(nentries));
 
 
   int ndtsegm4D =  dtsegm4D_station->size();
