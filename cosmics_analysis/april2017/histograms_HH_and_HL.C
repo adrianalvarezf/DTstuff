@@ -121,7 +121,7 @@ void histograms_HH_and_HL::Terminate()
 {
 
   cout<<" Number of HH = "<<highhigh<<"," <<" Number of HL = "<<highlow<<"," <<" Number of both = "<<both<<","<<" Number of bad quality segments "<<worseq<<","<<" Number of segments "<<totalsegm<<endl;
- 
+  /*
   int voltage;
   if(runnumber==291316)voltage=3700;
   if(runnumber==291222)voltage=3600;
@@ -131,9 +131,11 @@ void histograms_HH_and_HL::Terminate()
   if(runnumber==290910||runnumber==291683)voltage=3400;
   if(runnumber==291340)voltage=3250;
   if(runnumber==291385)voltage=3350;
+  */
+  //TFile *my_new_file = new TFile(Form("run%d_%dV_histograms.root",runnumber,voltage),"RECREATE"); 
 
+  TFile *my_new_file = new TFile(Form("run%d_histograms.root",runnumber),"RECREATE"); 
 
-  TFile *my_new_file = new TFile(Form("run%d_%dV_histograms.root",runnumber,voltage),"RECREATE"); 
   TCanvas *can2[5][4][14][2];
   for(int wheel=0;wheel<5;wheel++){
     for(int station=0;station<4;station++){
