@@ -79,6 +79,7 @@ public :
    THStack *hs = new THStack("hs","");
    TH1F *h_fits[4];
    TGraph *gr1= new TGraph();
+   TGraph *gr2= new TGraph();
 
    vector<TString> *hlt_path;
    vector<short>   *digi_wheel;
