@@ -39,14 +39,14 @@ if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX.txt fit_
  TString namefile2= argv[2];
 
   int wheel[250],station[250],sector[250];
-  float mean[250],meanerr[250], sigma[250],sigmaerr[250];
-  float meant0[250],meanerrt0[250], sigmat0[250],sigmaerrt0[250],dummy[250];
+  float mean[250],meanerr[250],sigma[250],sigmaerr[250];
+  float meant0[250],meanerrt0[250],sigmat0[250],sigmaerrt0[250],dummy[250];
   float correction[250],correctionerr[250];
   TH1F *correction_hist[4];
   TH1F *correction_all = new TH1F("correction","<t0>-worst_phase+12.5",32,-3,5);
   THStack *hs = new THStack("hs","");
-  TH1F *h_fits[6];
-  for(int a=0;a<6;a++) h_fits[a]= new TH1F(Form("peaks_histogram_region%d",a),Form("peaks_histogram_region%d",a),32,-3,5);
+  //TH1F *h_fits[6];
+  //for(int a=0;a<6;a++) h_fits[a]= new TH1F(Form("peaks_histogram_region%d",a),Form("peaks_histogram_region%d",a),32,-3,5);
 
   for(int station=0;station<4;station++){
     correction_hist[station]= new TH1F(Form("Correction_for_MB%d",station+1),Form("Correction_for_MB%d",station+1),40,0,20);
@@ -82,23 +82,17 @@ if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX.txt fit_
   for(int w=0;w<5;w++ ){
     for(int st=0;st<4;st++ ){
       for(int sec=0;sec<14;sec++ ){
-	if(st!=3 && sec>11)continue;
+	if(st!=3&&sec>11)continue;
 	if(sec!=0&&sec!=6)correction[row]=meant0[row]-mean[row]+12.5;
 	if(sec==6)correction[row]=meant0[row]-(mean[row-1]+mean[row+1])/2+12.5; ///To solve problems with vertical sectors in the cosmics analysis
 	if(sec==0)correction[row]=meant0[row]-(mean[row+11]+mean[row+1])/2+12.5;
-	/*
-	if(w==0&&sec==9){correctionf<<"missing chamber in sector 10 Wh-2 "<<endl;
-	  row++;continue;
-	}
-	if(w==0&&sec==13){correctionf<<"missing chamber in sector 14 Wh-2 "<<endl;
-	  row++;continue;
-	}
-	*/
 	correctionerr[row]=TMath::Sqrt(meanerrt0[row]*meanerrt0[row]+meanerr[row]*meanerr[row]);
 	//cout<<"wheel "<<w-2<<" "<<" station "<<st+1<<" sector "<<sec+1<<endl;
 	//cout<<mean[row]<<"  "<<meant0[row]<<"  "<<correction[row]<<endl;
 	correction_hist[st]->Fill(correction[row]);
 	correction_all->Fill(correction[row]);
+	//Stacked coloured plot divided in 6 parts (June 2017)
+	/*
 	if(st==3&&sec<5&&sec>1)h_fits[4]->Fill(correction[row]);
 	else{
 	  if(st==3&&sec==12)h_fits[4]->Fill(correction[row]);
@@ -107,6 +101,7 @@ if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX.txt fit_
 	    else h_fits[st]->Fill(correction[row]);
 	  }
 	}
+	*/
 	correctionf<<"      "<<showpos<<w-2<<noshowpos<<"      "<<st+1<<"      "<<setfill('0') << setw(2)<< sec+1<<"      "<< fixed << setprecision(4)<<correction[row]<<setw(2)<<"   "<<correctionerr[row]<<endl;	
 	row++;
       }
@@ -163,8 +158,8 @@ if(argc!=3){printf(" Use: ./corrections_calculator.exe hist_div_runXXXX.txt fit_
   hs->GetXaxis()->SetTitle("correction [ns]");
   hs->GetYaxis()->SetTitle("number of chambers");
   hs->SetTitle("corrections for the different regions");
-  canstack->Print("corrections_6regions.gif");
-
+  //canstack->Print("corrections_6regions.gif");
+  canstack->Print("corrections.gif");
 
 
 }
