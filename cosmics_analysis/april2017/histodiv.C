@@ -31,6 +31,7 @@ int main(int argc, const char* argv[]){
 
   if(argc=!4){printf("Not enough arguments provided. Use: ./histodiv.exe [numberoffiles N] [print gifs 1=y/0=n] file1.root ...  fileN.root\n"); return 0;}
 
+  //////////////////////////////////////////////////////////DEFINITIONS//////////////////////////////////////////////////
   TH1F *HH[5][4][14];  
   TH1F *HL[5][4][14]; 
   TH1F *HH_clone[5][4][14];  
@@ -66,10 +67,8 @@ int main(int argc, const char* argv[]){
       }
     }
   }
-
+  //////////////////////////////////////////////////////////HISTOGRAM FILLING//////////////////////////////////////////////////
   TFile *f[filenum];
-  //f[0] = new TFile("run291222_3600V_histograms.root","READ");
-  //f[0] = new TFile("run290966_3500V_histograms.root","READ");
   //f[0] = new TFile("run290910_3400V_histograms.root","READ");
   for(int i=0;i<filenum;i++) f[i] = new TFile(argv[i+3],"READ");
 
@@ -77,8 +76,6 @@ int main(int argc, const char* argv[]){
     for(int wheel=0;wheel<5;wheel++){
       for(int station=0;station<4;station++){
 	for(int sec=0;sec<14;sec++){
-	  //	  if(station==2||station==1||wheel==1||wheel==3)continue;                  ///Check just the changed chambers
-	  //      if(sec<2||sec>4)continue;                                                ///Check just the changed chambers
 	  if(sec>11&&station!=3)continue;
 	  HH[wheel][station][sec] = (TH1F*)f[nfile]->Get(Form("Wh%d_St%d_Sec%d_HH",wheel-2,station+1,sec+1));
 	  HL[wheel][station][sec] = (TH1F*)f[nfile]->Get(Form("Wh%d_St%d_Sec%d_HL",wheel-2,station+1,sec+1));
@@ -118,7 +115,8 @@ int main(int argc, const char* argv[]){
 	if(HH_clone[wheel][station][sec]->GetEntries()==0 || HL_clone[wheel][station][sec]->GetEntries()==0)continue;
 	TString namediv = Form("HL_vs_HH_Wh%d_MB%d_Sec%d.gif",wheel-2,station+1,sec+1);
 	TString namedivf = Form("HL_vs_HH_folded_Wh%d_MB%d_Sec%d.gif",wheel-2,station+1,sec+1);
-	
+
+	//////////////////////////////////////////////NON-FOLDED HISTOS///////////////////////////////////////////////////////////////////
 	can[wheel][station][sec][0]= new TCanvas(); 
 	can[wheel][station][sec][0]->cd(1);
 	div[wheel][station][sec]=(TH1F*)HL_clone[wheel][station][sec]->Clone();
@@ -137,11 +135,11 @@ int main(int argc, const char* argv[]){
 	div[wheel][station][sec]->SetBins(120,-80,40);
 	div[wheel][station][sec]->SetLineColor(2);
 	div[wheel][station][sec]->SetTitle(namediv);
-	//can[wheel][station][sec][0]->Print(namediv); 
+	//can[wheel][station][sec][0]->Print(namediv); // commented, no need to show non-folded histograms
  	gStyle->SetOptStat(0);
 	can[wheel][station][sec][0]->Close();  
 
-	//////////////////////////////////////////////FOLDED HISTOS///////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////FOLDED HISTOS + FITS + TXT OUTPUT///////////////////////////////////////////////////////////////////
 	can[wheel][station][sec][1]= new TCanvas(); 
 	can[wheel][station][sec][1]->cd(1);
 	div_fold[wheel][station][sec]=(TH1F*)HL_clone_fold[wheel][station][sec]->Clone();
