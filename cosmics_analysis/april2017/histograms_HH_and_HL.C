@@ -17,11 +17,6 @@ void histograms_HH_and_HL::Begin(TTree * /*tree*/)
 
 }
 
-void histograms_HH_and_HL::SlaveBegin(TTree * /*tree*/)
-{
-  TString option = GetOption();
-}
-
 Bool_t histograms_HH_and_HL::Process(Long64_t entry)
 {
   vector<short>   &my_dtsegm4D_wheel= *dtsegm4D_wheel;
@@ -35,26 +30,15 @@ Bool_t histograms_HH_and_HL::Process(Long64_t entry)
   vector<short>   &my_ltTwinMuxIn_station= *ltTwinMuxIn_station;
   vector<float>   &my_dtsegm4D_x_dir_loc = *dtsegm4D_x_dir_loc;
   vector<float>   &my_dtsegm4D_z_dir_loc = *dtsegm4D_z_dir_loc;
-
-  vector<short>   &my_Mu_isMuGlobal = *Mu_isMuGlobal;
-  vector<short>   &my_Mu_isMuTracker = *Mu_isMuTracker;
-  vector<float>   &my_Mu_normchi2_glb = *Mu_normchi2_glb;
-  vector<int>     &my_Mu_numberOfMatches_sta = *Mu_numberOfMatches_sta;
-  vector<float>   &my_Mu_dz_glb = *Mu_dz_glb;
-  vector<float>   &my_Mu_dxy_glb = *Mu_dxy_glb;
-  vector<int>     &my_Mu_numberOfPixelHits_glb = *Mu_numberOfPixelHits_glb;
-  vector<int>     &my_Mu_numberOfTrackerHits_glb = *Mu_numberOfTrackerHits_glb;
-  vector<int>     &my_Mu_numberOfHits_sta = *Mu_numberOfHits_sta;
-
+s
   Long64_t nentries = fChain->GetEntriesFast();
   fChain->GetEntry(entry);
-  //if(fmod(entry,10000)==0) Printf(" ..... event %d", int(entry));
   if(fmod(entry,10000)==0) Printf(" ..... event %d of %d", int(entry), int(nentries));
 
 
   int ndtsegm4D =  dtsegm4D_station->size();
   totalsegm+=ndtsegm4D;
-
+  ////////////////////////////////////////////////////////////////////FILLING HISTOS////////////////////////////////////////////////////////////////
   for (int idtsegm = 0; idtsegm < ndtsegm4D; ++idtsegm) {
     if(my_ltTwinMuxIn_quality.size()==0){continue;}
     TVectorF *my_segm4D_phi_hitsLayer = (TVectorF*)dtsegm4D_phi_hitsLayer->At(idtsegm);
@@ -62,13 +46,13 @@ Bool_t histograms_HH_and_HL::Process(Long64_t entry)
     float ang_rec=TMath::ATan(my_dtsegm4D_x_dir_loc[idtsegm]/my_dtsegm4D_z_dir_loc[idtsegm]);
     if(fabs(ang_rec) >TMath::Pi()/6)continue;
     //if(n_phi_hitsLayer<6){continue;}
-    
+
+    ///TwinMux and dtsegm4D chambers should match
     for (int q = 0; q <(int)my_ltTwinMuxIn_quality.size(); ++q) {
       if(my_ltTwinMuxIn_station[q]!= my_dtsegm4D_station[idtsegm] || my_ltTwinMuxIn_wheel[q]!= my_dtsegm4D_wheel[idtsegm]){continue;}
       if(my_ltTwinMuxIn_sector[q]!= my_dtsegm4D_sector[idtsegm] &&  my_dtsegm4D_sector[idtsegm]<13){continue;}
       if(my_dtsegm4D_sector[idtsegm]==13 && my_ltTwinMuxIn_sector[q]!=4){continue;}
       if(my_dtsegm4D_sector[idtsegm]==14 && my_ltTwinMuxIn_sector[q]!=10){continue;}
-      // T0[my_ltTwinMuxIn_wheel[q]+2][my_ltTwinMuxIn_station[q]-1][my_ltTwinMuxIn_sector[q]-1]->Fill(my_dtsegm4D_t0[idtsegm]);
       if(my_ltTwinMuxIn_quality[q]==6){
 	HH[my_ltTwinMuxIn_wheel[q]+2][my_ltTwinMuxIn_station[q]-1][my_dtsegm4D_sector[idtsegm]-1]->Fill(my_dtsegm4D_t0[idtsegm]);
 	HH_fold[my_ltTwinMuxIn_wheel[q]+2][my_ltTwinMuxIn_station[q]-1][my_dtsegm4D_sector[idtsegm]-1]->Fill((int)(my_dtsegm4D_t0[idtsegm]+50)%25);
@@ -100,42 +84,18 @@ Bool_t histograms_HH_and_HL::Process(Long64_t entry)
  my_dtsegm4D_x_dir_loc.clear();
  my_dtsegm4D_z_dir_loc.clear();
 
- my_Mu_isMuGlobal.clear();
- my_Mu_isMuTracker.clear();
- my_Mu_normchi2_glb.clear();
- my_Mu_numberOfMatches_sta.clear();
- my_Mu_dxy_glb.clear();
- my_Mu_dz_glb.clear();
- my_Mu_numberOfHits_sta.clear();
- my_Mu_numberOfPixelHits_glb.clear();
- my_Mu_numberOfTrackerHits_glb.clear();
 
 }
  
-void histograms_HH_and_HL::SlaveTerminate()
-{
-    
-}
-
 void histograms_HH_and_HL::Terminate()
 {
 
   cout<<" Number of HH = "<<highhigh<<"," <<" Number of HL = "<<highlow<<"," <<" Number of both = "<<both<<","<<" Number of bad quality segments "<<worseq<<","<<" Number of segments "<<totalsegm<<endl;
-  /*
-  int voltage;
-  if(runnumber==291316)voltage=3700;
-  if(runnumber==291222)voltage=3600;
-  if(runnumber==291860)voltage=3550;
-  if(runnumber==290966||runnumber==291836)voltage=3500;
-  if(runnumber==291778)voltage=3450;
-  if(runnumber==290910||runnumber==291683)voltage=3400;
-  if(runnumber==291340)voltage=3250;
-  if(runnumber==291385)voltage=3350;
-  */
+  
   //TFile *my_new_file = new TFile(Form("run%d_%dV_histograms.root",runnumber,voltage),"RECREATE"); 
-
   TFile *my_new_file = new TFile(Form("run%d_histograms.root",runnumber),"RECREATE"); 
 
+  ////////////////////////////////////////////////////////////////////NON-FOLDED HISTOGRAMS////////////////////////////////////////////////////////////////
   TCanvas *can2[5][4][14][2];
   for(int wheel=0;wheel<5;wheel++){
     for(int station=0;station<4;station++){
@@ -163,12 +123,14 @@ void histograms_HH_and_HL::Terminate()
 	    HL[wheel][station][sec]->GetYaxis()->SetTitle("entries");
 	    HL[wheel][station][sec]->Write();
 	  }
-	  //can2[wheel][station][sec][qu]->Print(name[qu]);  
+	  //can2[wheel][station][sec][qu]->Print(name[qu]);  //Uncomment to see non-folded histograms
 	  can2[wheel][station][sec][qu]->Close();  
 	} 
       }
     }
   }
+
+////////////////////////////////////////////////////////////////////FOLDED HISTOGRAMS////////////////////////////////////////////////////////////////
  TCanvas *can22[5][4][14][2];
   for(int wheel=0;wheel<5;wheel++){
     for(int station=0;station<4;station++){
@@ -196,7 +158,7 @@ void histograms_HH_and_HL::Terminate()
 	    HL_fold[wheel][station][sec]->GetYaxis()->SetTitle("entries");
 	    HL_fold[wheel][station][sec]->Write();
 	  }
-	  //can22[wheel][station][sec][qu]->Print(name[qu]);  
+	  can22[wheel][station][sec][qu]->Print(name[qu]);  
 	  can22[wheel][station][sec][qu]->Close();  
 	} 
       }

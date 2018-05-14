@@ -66,7 +66,7 @@ public :
    TH1F *HH_fold[5][4][14];  
    TH1F *HL_fold[5][4][14];
    TH1F *div_fold[5][4][14]; 
-   TH1F *T0[5][4][14];
+  
    
    vector<TString> *hlt_path;
    vector<short>   *digi_wheel;
@@ -697,7 +697,6 @@ void histograms_HH_and_HL::Init(TTree *tree)
 	 HL_fold[wheel][station][sector] = new TH1F(Form("%s_HL_fold",hNamef.Data()),hName,50,0,25); 
 	 HH_fold[wheel][station][sector] = new TH1F(Form("%s_HH_fold",hNamef.Data()),hName,50,0,25); 
 	 div_fold[wheel][station][sector]= new TH1F(Form("%s_div_fold",hNamef.Data()),hName,50,0,25); 
-	 T0[wheel][station][sector]= new TH1F(Form("%s_t0",hName.Data()),hName,40,-20,20); 
        }
      }
    }
