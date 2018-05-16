@@ -12,9 +12,7 @@
 
 void histograms_HH_and_HL::Begin(TTree * /*tree*/)
 {
- 
   TString option = GetOption();
-
 }
 
 Bool_t histograms_HH_and_HL::Process(Long64_t entry)
@@ -30,7 +28,7 @@ Bool_t histograms_HH_and_HL::Process(Long64_t entry)
   vector<short>   &my_ltTwinMuxIn_station= *ltTwinMuxIn_station;
   vector<float>   &my_dtsegm4D_x_dir_loc = *dtsegm4D_x_dir_loc;
   vector<float>   &my_dtsegm4D_z_dir_loc = *dtsegm4D_z_dir_loc;
-s
+
   Long64_t nentries = fChain->GetEntriesFast();
   fChain->GetEntry(entry);
   if(fmod(entry,10000)==0) Printf(" ..... event %d of %d", int(entry), int(nentries));
