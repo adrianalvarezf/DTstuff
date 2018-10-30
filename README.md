@@ -40,7 +40,7 @@ To calculate the corrections, first compile corrections_calculator.C , then:
       
 How to use the efficiencies program
 ==============
-Compile corrections_calculator.C , then:
+Compile MyEffWithDigis_all.C , then:
 
       ./MyEffWithDigis_all.exe directorypath  DTNTuple_runXXXX.root
       
